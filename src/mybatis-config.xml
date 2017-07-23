@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- xml在SqlSessionFactory中被加载 -->
+
+<configuration>
+	<!-- 别名:简化userinfo.xml中的parameterType -->
+	<typeAliases>
+		<typeAlias type="com.wnwn.po.UserInfo" alias="UserInfo"/>
+	</typeAliases>
+	<!-- 配置数据库连接，可配置多个多种数据库 -->
+	<environments default="developments">
+		<!-- mysql环境 -->
+		<environment id="mysql">
+			<!-- 事务：JDBC -->
+			<transactionManager type="JDBC"></transactionManager>
+			<!-- 连接池 -->
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver"/>
+				<property name="url" value="jdbc:mysql://127.0.0.1:3306/test?characterEncoding=UTF-8"/><!-- 数据库名 -->
+				<property name="username" value="root"/>
+				<property name="password" value="wnwn1994"/>
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<!-- 引入映射关系配置文件 -->
+	<mappers>
+		<!-- 对xml配置文件的映射 -->
+		<mapper resource="com/wnwn/mapper/userinfo.xml"></mapper>
+		<!-- 对类的映射，使用注解时必须映射指向类名 -->
+		<mapper class="com.wnwn.mapper.UserInfoWithAnnotateMapper"></mapper>
+	</mappers>
+</configuration>

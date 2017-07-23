@@ -1,0 +1,9 @@
+使用接口的方式实现：
+创建一个接口，创建SQL映射文件userinfo.xml,
+映射文件namespace="com.liu.mapper.UserInfoMapper" 必须指向接口
+接口里面方法名必须和映射文件的id属性值的名称相同
+接口里面方法的参数必须和映射文件的parameterType属性值的名称相同
+<select id="selectUser" parameterType="UserInfo" resultMap="userMap">
+public List<UserInfo> selectUser(UserInfo user);
+id="selectUser"  -- selectUser
+parameterType="UserInfo"   --  UserInfo user

@@ -1,0 +1,49 @@
+1.把所需jar（mysql-connector-java-5.1.11-bin.jar和mybatis-3.2.6.jar）拷贝到lib目录下
+2.编写与数据库对应的实体类UserInfo
+3.创建mybatis-config.xml配置文件：
+		<!-- mysql -->
+		<environment id="mysql">
+			<transactionManager type="JDBC"></transactionManager>//事物
+			<dataSource type="POOLED">//连接池
+				<property name="driver" value="com.mysql.jdbc.Driver"/>//驱动
+				<property name="url" value="jdbc:mysql://127.0.0.1:3306/test"  //url
+				<property name="username" value="root"/>  //账号
+				<property name="password" value=""/>    //密码
+			</dataSource>	
+		</environment>
+4.创建DBFactory类获取SqlSessionFactory
+InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
+SqlSessionFactoryBuilder().build(inputStream, "mysql");
+第二个参数：指定需要连接的数据库配置
+
+
+5.创建mybatis的sql映射文件userinfo.xml	
+   mapper执行命名空间   namespace="com.liu.user"           （重要） 
+      编写resultMap  property对应实体类属性  column 对应着数据库字段
+      编写sql语句：select * from user_info  
+    id="selectOneUser" 唯一标识
+    parameterType="java.lang.Integer"  参数的类型  
+    resultMap="userMap" 返回类型
+ <mapper namespace="com.liu.user" >
+	<!-- property对应实体类属性  column 对应着数据库字段 -->
+	<resultMap type="com.liu.po.UserInfo" id="userMap"> 
+		<result property="userId" column="user_id"></result>
+		<result property="userName" column="user_name"></result>
+		<result property="userSex" column="user_sex"></result>
+	</resultMap>
+
+	<select id="selectUser" resultMap="userMap">
+		select * from user_info
+	</select>
+
+	<select id="selectOneUser" parameterType="java.lang.Integer" resultMap="userMap">
+		select * from user_info where user_id=#{userId}
+	</select>
+</mapper>   
+
+6. 从SqlSessionFactory里面获取SqlSession：DBFactory.getFactory().openSession();
+   在从SqlSession拿到增删修查一系列方法
+   selectOne("com.liu.user.selectOneUser", 2);
+   	第一个参数：通过命名空间找到想对应的SQL
+   	第二个参数：条件
+  最后关闭SqlSession	

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 通过接口操作时命名空间必须指向接口 -->
+<mapper namespace="com.wnwn.mapper.UserInfoMapper">
+<!-- <mapper namespace="com.wnwn.mapper"> -->
+
+	<!-- 映射，type对应映射的类 -->
+	<resultMap type="com.wnwn.po.UserInfo" id="userMap">
+		<!-- property对应实体类属性  column 对应着数据库字段
+			<id>表示主键 -->
+		<id property="userId" column="user_id"></id>
+		<result property="userName" column="user_name"></result>
+		<result property="userSex" column="user_sex"></result>
+	</resultMap>
+
+	<!-- 查询表中全部记录 -->
+	<select id="selectUser" resultMap="userMap">
+		select * from user_info
+	</select>
+	<!-- 条件查询 
+		parameterType:条件的类型（需写包名）
+		条件字段写在#{}中-->
+	<select id="selectOneUser" parameterType="java.lang.Integer" resultMap="userMap">
+		select * from user_info where user_id=#{userId}
+	</select>
+	
+<!-- 三种参数类型传递方式 -->
+	<!-- 常量类型
+		常用于传递单个参数 -->
+	<select id="selectUserByConstant" parameterType="String" resultMap="userMap">
+		select * from user_info where user_name=#{userName} and user_sex=#{userSex}
+	</select>
+	<!-- 实体类型
+		传递实体类
+		#{}中的字段与实体类中的属性名相同 -->
+	<select id="selectUserByEntity" parameterType="UserInfo" resultMap="userMap">
+		select * from user_info where user_name=#{userName} and user_sex=#{userSex}
+	</select>
+	<!-- map类型
+		传递没有实体类的多个参数
+		#{}中的字段为Map中的键名 -->
+	<select id="selectUserByMap" parameterType="Map" resultMap="userMap">
+		select * from user_info where user_name=#{name} and user_sex=#{sex}
+	</select>
+	
+	<!-- 动态sql查询 
+		<where>可用于去掉字段前多余的and或or-->
+	<select id="selectUserDynamic" parameterType="UserInfo" resultMap="userMap">
+		select * from user_info
+		<where>
+			<if test="userId != null">
+				and user_id = #{userId}
+			</if>
+			<if test="userName != null">
+				or user_name like #{userName}
+			</if>
+			<if test="userSex != null">
+				and user_sex = #{userSex}
+			</if>
+		</where>
+	</select>
+	
+	<!-- <choose>只返回一个条件
+		当userId提供时仅有user_id条件,当没有userId有userName提供时仅有user_name条件。
+		如果二者都没提供,则返回<otherwise>中的条件
+	 	<otherwise>可不要
+	 	可与<if>搭配使用 -->
+	<select id="selectUserDynamic1" parameterType="UserInfo" resultMap="userMap">
+		select * from user_info where 1=1
+		<!-- <if test="userId != null">and user_id = #{userId}</if> -->
+		<choose>
+			<when test="userId != null">
+				and user_id = #{userId}
+			</when>
+			<when test="userName != null">
+				and user_name like #{userName}
+			</when>
+			<otherwise>
+				and user_sex = '男'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- <trim>可用于替代<where>，如sql语句中使用where ()
+		可移除在prefixOverrides属性中指定的内容and或or,插入在prefix属性中的内容。 -->
+	<select id="selectUserDynamic2" parameterType="UserInfo" resultMap="userMap">
+		select * from user_info
+		<trim prefix="where(" suffix=")" prefixOverrides="and|or">
+			<if test="userId != null">
+				and user_id = #{userId}
+			</if>
+			<if test="userName != null">
+				or user_name like #{userName}
+			</if>
+			<if test="userSex != null">
+				and user_sex = #{userSex}
+			</if>
+		</trim>
+	</select>
+	
+	<!-- <foreach>可实现迭代一个集合的操作，通常用于in(xx,xx)
+		collection可以是po中的列表或数组名 -->
+	<select id="selectByIdList" parameterType="UserInfo" resultMap="userMap">
+		select * from user_info where user_id in
+		<foreach collection="userIds" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="addUser" parameterType="UserInfo">
+		insert into user_info (user_name,user_sex) values(#{userName},#{userSex})
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="updateUser" parameterType="UserInfo">
+		update user_info set user_name = #{userName},user_sex=#{userSex} where user_id = #{userId}
+	</update>
+	
+	<!-- 动态更新
+		set元素可以被用于动态包含更新的列,而不包含不需更新的。
+		可自动去掉结尾的 ， -->
+	<update id="updateUserDynamic" parameterType="UserInfo">
+		update user_info
+		<set>
+			<if test="userName != null">user_name = #{userName},</if>
+			<if test="userSex != null">user_sex = #{userSex},</if>
+		</set>
+		where user_id = #{userId}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="deleteUser" parameterType="Integer">
+		delete from user_info where user_id = #{userId}
+	</delete>
+	
+</mapper>
